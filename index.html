@@ -26,7 +26,7 @@
 	</style>
 
 	<script>
-		window.BlobBuilder = window.BlobBuilder || window.MozBlobBuilder || window.WebKitBlobBuilder;
+		window.BlobBuilder = window.BlobBuilder || window.MozBlobBuilder || window.WebKitBlobBuilder || window.MSBlobBuilder;
 		window.URL = window.URL || window.webkitURL;
 
 		document.addEventListener('DOMContentLoaded', function() {
@@ -81,7 +81,7 @@
 
 				var files = event.dataTransfer.files;
 				file = files[0];
-				if (files.length > 1 || file.type != "audio/mp3") return;
+				if (files.length > 1 || (file.type != "audio/mp3" && file.type != "audio/mpeg")) return;
 
 				busy = true;
 
