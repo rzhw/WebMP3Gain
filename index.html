@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<title>WebMP3Gain</title>
+
+	<style>
+		body {
+			font-family: arial, sans-serif;
+		}
+		h1, h2 {
+			text-align: center;
+		}
+		#console {
+			margin: 0 auto;
+			padding: 10px;
+			width: 640px;
+			background: #777;
+			color: #fff;
+			word-wrap: break-word;
+		}
+		#output {
+			text-align: center;
+		}
+	</style>
+
+	<script>
+		window.BlobBuilder = window.BlobBuilder || window.MozBlobBuilder || window.WebKitBlobBuilder;
+		window.URL = window.URL || window.webkitURL;
+
+		document.addEventListener('DOMContentLoaded', function() {
+			var file = null;
+			var busy = false;
+			var worker = new Worker('mp3gain-worker.js');
+
+			var consoleElm = document.getElementById('console');
+			var outputElm = document.getElementById('output');
+
+			worker.onmessage = function(event) {
+				var message = event.data;
+				if (message.type === 'ready') {
+					consoleElm.innerHTML = 'Ready! Drop an MP3 onto this page...';
+				} else if (message.type === 'started') {
+					consoleElm.innerHTML = 'Running...\n';
+				} else if (message.type === 'log') {
+					consoleElm.innerHTML += message.content + '\n';
+				} else if (message.type === 'result') {
+					consoleElm.innerHTML += 'Done!';
+
+					var blobBuilder = new BlobBuilder();
+					blobBuilder.append(message.content);
+					var blob = blobBuilder.getBlob('audio/mp3');
+					var src = window.URL.createObjectURL(blob);
+
+					var audioElm = document.createElement('audio');
+					audioElm.controls = true;
+					audioElm.src = src;
+
+					var downloadLinkElm = document.createElement('a');
+					downloadLinkElm.download = file.name;
+					downloadLinkElm.href = src;
+					downloadLinkElm.innerHTML = 'Download';
+
+					outputElm.appendChild(audioElm);
+					outputElm.appendChild(downloadLinkElm);
+				}
+			};
+
+			document.addEventListener("dragover", function(event) {
+				if (!busy) {
+					event.preventDefault();
+					event.dataTransfer.dropEffect = 'copy';
+				}
+			}, false);
+
+			document.addEventListener("drop", function(event) {
+				event.preventDefault();
+
+				if (busy) return;
+
+				var files = event.dataTransfer.files;
+				file = files[0];
+				if (files.length > 1 || file.type != "audio/mp3") return;
+
+				busy = true;
+
+				var fileReader = new FileReader();
+
+				var onloadend = function(event) {
+					worker.postMessage({
+						type: 'file',
+						content: new Uint8Array(event.target.result)
+					});
+					worker.postMessage({
+						'type' : 'start'
+					});
+				};
+
+				if (fileReader.addEventListener) {
+					fileReader.addEventListener('loadend', onloadend, false);
+				} else {
+					fileReader.onloadend = onloadend;
+				}
+
+				fileReader.readAsArrayBuffer(file);
+			}, false);
+		});
+	</script>
+</head>
+
+<body>
+	<h1>WebMP3Gain</h1>
+	<pre id="console">Loading...</pre>
+	<div id="output"></div>
+</body>
+
+</html>
