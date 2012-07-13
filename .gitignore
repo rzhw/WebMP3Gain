@@ -1,0 +1,11 @@
+*.o
+*.bc
+
+*.lib
+*.dll
+*.so
+
+*.exe
+*.out
+
+mp3gain-worker.js
