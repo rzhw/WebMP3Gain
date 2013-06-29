@@ -26,9 +26,6 @@
 	</style>
 
 	<script>
-		window.BlobBuilder = window.BlobBuilder || window.MozBlobBuilder || window.WebKitBlobBuilder || window.MSBlobBuilder;
-		window.URL = window.URL || window.webkitURL;
-
 		document.addEventListener('DOMContentLoaded', function() {
 			var file = null;
 			var busy = false;
@@ -48,9 +45,7 @@
 				} else if (message.type === 'result') {
 					consoleElm.innerHTML += 'Done!';
 
-					var blobBuilder = new BlobBuilder();
-					blobBuilder.append(message.content);
-					var blob = blobBuilder.getBlob('audio/mp3');
+					var blob = new Blob([ message.content ], { type: 'audio/mp3' });
 					var src = window.URL.createObjectURL(blob);
 
 					var audioElm = document.createElement('audio');
