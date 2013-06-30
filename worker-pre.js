@@ -1,9 +1,8 @@
-var Module = {};
-
-Module['noInitialRun'] = true;
-
-Module['print'] = function(text) {
-	postMessage({ type: 'log', content: text });
+var Module = {
+	noInitialRun: true,
+	print: function(text) {
+		postMessage({ type: 'log', content: text });
+	}
 };
 
 var getFileData = function(filename) {
@@ -11,7 +10,7 @@ var getFileData = function(filename) {
 	return new Uint8Array(data).buffer;
 };
 
-onmessage = function(e) {
+self.onmessage = function(e) {
 	var msg = e.data;
 
 	switch (msg.type) {
@@ -20,12 +19,17 @@ onmessage = function(e) {
 			break;
 
 		case 'start':
-			postMessage({ type: 'started' });
+			self.postMessage({
+				type: 'started'
+			});
 			
 			// Use -t flag since otherwise Object #<Uint8Array> has no method 'push'
 			Module['run'](['-t', '-r', '/file.mp3']);
 
-			postMessage({ type: 'result', content: getFileData('file.mp3') });
+			self.postMessage({
+				type: 'result',
+				content: getFileData('file.mp3')
+			});
 			break;
 	}
 };

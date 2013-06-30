@@ -1,3 +1,3 @@
-postMessage({
+self.postMessage({
 	type: 'ready'
 });
