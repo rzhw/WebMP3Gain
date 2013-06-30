@@ -8,6 +8,10 @@
 	<style>
 		body {
 			font-family: arial, sans-serif;
+			transition: .2s all;
+		}
+		body.dragover {
+			background: #eee;
 		}
 		h1, h2 {
 			text-align: center;
@@ -28,7 +32,7 @@
 	<script>
 		document.addEventListener('DOMContentLoaded', function() {
 			var file = null;
-			var busy = false;
+			var busy = true;
 			var worker = new Worker('mp3gain-worker.js');
 
 			var consoleElm = document.getElementById('console');
@@ -38,6 +42,7 @@
 				var message = event.data;
 				if (message.type === 'ready') {
 					consoleElm.innerHTML = 'Ready! Drop an MP3 onto this page...';
+					busy = false;
 				} else if (message.type === 'started') {
 					consoleElm.innerHTML = 'Running...\n';
 				} else if (message.type === 'log') {
@@ -59,18 +64,29 @@
 
 					outputElm.appendChild(audioElm);
 					outputElm.appendChild(downloadLinkElm);
+
+					busy = false;
 				}
 			};
 
 			document.addEventListener("dragover", function(event) {
-				if (!busy) {
-					event.preventDefault();
+				event.preventDefault();
+				if (busy) {
+					event.dataTransfer.dropEffect = 'none';
+				} else {
 					event.dataTransfer.dropEffect = 'copy';
+					document.body.className = 'dragover';
 				}
+			}, false);
+
+			document.addEventListener("dragleave", function(event) {
+				event.preventDefault();
+				document.body.className = '';
 			}, false);
 
 			document.addEventListener("drop", function(event) {
 				event.preventDefault();
+				document.body.className = '';
 
 				if (busy) return;
 
