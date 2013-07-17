@@ -11,9 +11,5 @@ need to constantly change your volume when another song comes on.
 
 ## Compiling
 
-Last tested with kripken/emscripten@18a6854c28. Simply set up Emscripten
+Last tested with kripken/emscripten@0708b232ee. Simply set up Emscripten
 in your PATH, and run `make`.
-
-## Known issues
-
-- Standard output isn't shown when using as a web worker (see gh-pages branch)

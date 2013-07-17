@@ -24,7 +24,7 @@ self.onmessage = function(e) {
 			});
 			
 			// Use -t flag since otherwise Object #<Uint8Array> has no method 'push'
-			Module['run'](['-t', '-r', '/file.mp3']);
+			Module['callMain'](['-t', '-r', '/file.mp3']);
 
 			self.postMessage({
 				type: 'result',
